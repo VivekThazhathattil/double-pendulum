@@ -158,31 +158,26 @@ int main()
 								temp_num = std::stoi(ev_num);
 								p1.r = temp_num; // from string to num
 								changeShape(rod1, rod2, bob1, bob2, &p1, &p2);
-								ev_num = ""; //reset ev_num
-								resetTextFields(p1_L, p2_L, p1_m, p2_m, &p1, &p2);
 								break;
 							case '2':
 								temp_num = std::stoi(ev_num);
 								p2.r = temp_num; 
 								changeShape(rod1, rod2, bob1, bob2, &p1, &p2);
-								ev_num = ""; //reset ev_num
-								resetTextFields(p1_L, p2_L, p1_m, p2_m, &p1, &p2);
 								break;
 							case '3':
 								temp_num = std::stoi(ev_num);
 								p1.m = temp_num;
 								changeShape(rod1, rod2, bob1, bob2, &p1, &p2);
-								ev_num = ""; //reset ev_num
-								resetTextFields(p1_L, p2_L, p1_m, p2_m, &p1, &p2);
 								break;
 							case '4':
 								temp_num = std::stoi(ev_num);
 								p2.m = temp_num; 
 								changeShape(rod1, rod2, bob1, bob2, &p1, &p2);
-								ev_num = ""; //reset ev_num
-								resetTextFields(p1_L, p2_L, p1_m, p2_m, &p1, &p2);
 								break;
 							}
+						ev_num = ""; //reset ev_num
+						resetTextFields(p1_L, p2_L, p1_m, p2_m, &p1, &p2);
+						fieldClicked = '0';
 					}
 				}
 					
