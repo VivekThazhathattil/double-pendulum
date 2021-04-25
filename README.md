@@ -1,5 +1,5 @@
-# Double Pendulum
-A simple GUI for demonstrating a double pendulum
+# Double Pendulum in C++
+A simple program written in C++ using SFML libraries for demonstrating a double pendulum
 
 # Prerequisites
 * In order to compile this, you need to have SFML and CMake installed in your system.
@@ -7,4 +7,4 @@ A simple GUI for demonstrating a double pendulum
 # Compilation
 * Run `chmod +x driver.sh` and `./driver.sh`
 
-![Screenshot](data/screenshot.png)
+![Screenshot](https://github.com/VivekThazhathattil/double-pendulum/data/screenshot.png)
