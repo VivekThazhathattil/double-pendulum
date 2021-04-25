@@ -88,7 +88,7 @@ int main()
 
 	// LOAD FONT AND DISPLAY BANNER MESSAGE
 	sf::Font font;
-	if (!font.loadFromFile("arial.ttf"))
+	if (!font.loadFromFile("data/arial.ttf"))
 	{
 	    // error...
 	}

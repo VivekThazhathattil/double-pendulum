@@ -6,3 +6,5 @@ A simple GUI for demonstrating a double pendulum
 
 # Compilation
 * Run `chmod +x driver.sh` and `./driver.sh`
+
+![Screenshot](data/screenshot.png)
