@@ -1,7 +1,9 @@
 #include <SFML/Graphics.hpp>
+#include<iostream>
 #include<cmath>
-// TODO: GUI with option to tweak the pendulum on the go
 // TODO: add dotted path (streaklines) for the bobs
+// TODO: ability to drag and drop the bobs
+// TODO: ability to drag the origin of 1st pendulum to desired location on screen
 struct pendulum{
 	float m = 20; //mass
 	float r = 200; //length
@@ -9,8 +11,31 @@ struct pendulum{
 	float a = -M_PI/2; // angle wrt vertical (in rad)
 	float a_v = 0; // angular velocity (in rad/s)
 	float a_a = 0; // angular acceleration (in rad/s2)
-	float w = 1; // rod width
+	float w = 2; // rod width
 };
+
+bool isTextFieldClicked(sf::Text& textField, sf::Vector2f& coords){
+	return textField.getGlobalBounds().contains(coords);
+}
+
+void resetTextFields(sf::Text& L1, sf::Text& L2, sf::Text& m1, sf::Text& m2, pendulum* a1, pendulum* a2){
+	L1.setString("pendulum #1 length: " + std::to_string(int(a1->r)));
+	L2.setString("pendulum #2 length: " + std::to_string(int(a2->r)));
+	m1.setString("pendulum #1 mass: " + std::to_string(int(a1->m)));
+	m2.setString("pendulum #2 mass: " + std::to_string(int(a2->m)));
+}
+
+void changeShape(sf::RectangleShape& rod1, sf::RectangleShape& rod2, sf::CircleShape& bob1, sf::CircleShape& bob2, pendulum* a1, pendulum* a2){
+	rod1.setSize(sf::Vector2f(a1->r, a1->w));
+	rod2.setSize(sf::Vector2f(a2->r, a2->w));
+	bob1.setRadius(a1->m);
+	bob2.setRadius(a2->m);
+
+	a1->a_v = 0;
+	a2->a_v = 0;
+	a1->a_a = 0;
+	a2->a_a = 0;
+}
 
 void ang_acc(float& m1, float& m2, float& g, float& a1, float& a2, float& a1_v, float& a2_v, float& L1, float& L2, float* res){
 	float num1 = -g*(2*m1 + m2)*sin(a1);
@@ -31,13 +56,18 @@ void ang_acc(float& m1, float& m2, float& g, float& a1, float& a2, float& a1_v, 
 
 int main()
 {
+	int temp_num = 10; // used for temporary int numbers one might need
 	bool ispaused = false;
+	sf::Vector2f currMouseCoords;
+
+	std::string ev_num = "";
+	char fieldClicked = '0';
 
 	float g = 0.01;
 	float a_a[2];
 	struct pendulum p1,p2;
 	p1.m = 10;
-	p2.m = 40;
+	p2.m = 10;
 	p1.r = 200;
 	p2.r = 200;
 //	sf::Clock clock;
@@ -45,6 +75,8 @@ int main()
 //	float dt = 0; // initially time elapsed = 0
 
     	sf::RenderWindow window(sf::VideoMode(600, 600), "Double Pendulum!");
+	p1.o[0] = window.getSize().x/2;
+	p1.o[1] = window.getSize().y/2;
 
     	sf::RectangleShape rod1(sf::Vector2f(p1.r, p1.w)); // rod shape for pendulum 1
     	sf::RectangleShape rod2(sf::Vector2f(p2.r, p2.w)); // rod shape for pendulum 2
@@ -53,6 +85,50 @@ int main()
     	sf::CircleShape bob2(p2.m); // bob shape (pend 2)
     	bob1.setFillColor(sf::Color::White);
     	bob2.setFillColor(sf::Color::White);
+
+	// LOAD FONT AND DISPLAY BANNER MESSAGE
+	sf::Font font;
+	if (!font.loadFromFile("arial.ttf"))
+	{
+	    // error...
+	}
+	sf::Text bannerMsg;
+	bannerMsg.setFont(font);
+	bannerMsg.setCharacterSize(48); // in pixels, not points!
+	bannerMsg.setString("Double Pendulum");
+	bannerMsg.setStyle(sf::Text::Bold | sf::Text::Underlined);
+	bannerMsg.setPosition(window.getSize().x/2 - bannerMsg.getLocalBounds().width/2,0);
+
+	int text_size = 16, text_spacing = 4, text_xoffset = 10;
+
+	sf::Text helpText;
+	helpText.setFont(font);
+	helpText.setCharacterSize(14); // in pixels, not points!
+	helpText.setString("(click on the textfields to tweak the pendulum)");
+	helpText.setPosition(text_xoffset, 0);
+
+	// p1_L, p2_L, p1_m, and p2_m are textfields for the respective values
+	sf::Text p1_L;
+	p1_L.setFont(font);
+	p1_L.setCharacterSize(text_size); // in pixels, not points!
+	p1_L.setPosition(text_xoffset, (text_size + text_spacing)*1);
+
+	sf::Text p2_L;
+	p2_L.setFont(font);
+	p2_L.setCharacterSize(text_size); // in pixels, not points!
+	p2_L.setPosition(text_xoffset, (text_size + text_spacing)*2);
+
+	sf::Text p1_m;
+	p1_m.setFont(font);
+	p1_m.setCharacterSize(text_size); // in pixels, not points!
+	p1_m.setPosition(text_xoffset, (text_size + text_spacing)*3);
+
+	sf::Text p2_m;
+	p2_m.setFont(font);
+	p2_m.setCharacterSize(text_size); // in pixels, not points!
+	p2_m.setPosition(text_xoffset, (text_size + text_spacing)*4);
+
+	resetTextFields(p1_L, p2_L, p1_m, p2_m, &p1, &p2);
 
     while (window.isOpen())
     {
@@ -65,7 +141,101 @@ int main()
 		        ispaused = true;
 	    if (event.type == sf::Event::GainedFocus)
 		        ispaused = false;
+
+ 	   	if (event.type == sf::Event::TextEntered)
+ 	   	{
+ 	   	    if ((event.text.unicode < 58 && event.text.unicode > 47) || event.text.unicode == 8 || event.text.unicode == 13)
+		    	if (fieldClicked != '0'){
+				if (event.text.unicode == 8){ //backspace event
+					if(ev_num.size() > 0){
+						ev_num.erase(ev_num.size()-1,1);
+					}
+				}
+				else if (event.text.unicode == 13){ // press enter event
+					if (ev_num.size() > 0){
+						switch(fieldClicked){
+							case '1':
+								temp_num = std::stoi(ev_num);
+								p1.r = temp_num; // from string to num
+								changeShape(rod1, rod2, bob1, bob2, &p1, &p2);
+								ev_num = ""; //reset ev_num
+								resetTextFields(p1_L, p2_L, p1_m, p2_m, &p1, &p2);
+								break;
+							case '2':
+								temp_num = std::stoi(ev_num);
+								p2.r = temp_num; 
+								changeShape(rod1, rod2, bob1, bob2, &p1, &p2);
+								ev_num = ""; //reset ev_num
+								resetTextFields(p1_L, p2_L, p1_m, p2_m, &p1, &p2);
+								break;
+							case '3':
+								temp_num = std::stoi(ev_num);
+								p1.m = temp_num;
+								changeShape(rod1, rod2, bob1, bob2, &p1, &p2);
+								ev_num = ""; //reset ev_num
+								resetTextFields(p1_L, p2_L, p1_m, p2_m, &p1, &p2);
+								break;
+							case '4':
+								temp_num = std::stoi(ev_num);
+								p2.m = temp_num; 
+								changeShape(rod1, rod2, bob1, bob2, &p1, &p2);
+								ev_num = ""; //reset ev_num
+								resetTextFields(p1_L, p2_L, p1_m, p2_m, &p1, &p2);
+								break;
+							}
+					}
+				}
+					
+				else{
+	 	   	        	ev_num += static_cast<char>(event.text.unicode);
+				}
+				switch(fieldClicked){
+					case '1':
+						p1_L.setString("pendulum #1 length: " + ev_num);
+						break;
+					case '2':
+						p2_L.setString("pendulum #2 length: " + ev_num);
+						break;
+					case '3':
+						p1_m.setString("pendulum #1 mass: " + ev_num);
+						break;
+					case '4':
+						p2_m.setString("pendulum #2 mass: " + ev_num);
+						break;
+			    		}
+ 	   			}
+
+		}
         }
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		currMouseCoords = sf::Vector2f(sf::Mouse::getPosition(window));
+	//	printf("Mouse coords: (%f, %f) \n", currMouseCoords.x, currMouseCoords.y);
+		
+		if(isTextFieldClicked(p1_L, currMouseCoords)){
+		//	sf::FloatRect a = p1_L.getLocalBounds();
+		//	printf("left = %d, top = %d, width = %d, height = %d\n", a.left, a.top, a.width, a.height);
+			resetTextFields(p1_L, p2_L, p1_m, p2_m, &p1, &p2);
+			p1_L.setString("pendulum #1 length: ____");
+			fieldClicked = '1';
+		}
+		else if(isTextFieldClicked(p2_L, currMouseCoords)){
+			resetTextFields(p1_L, p2_L, p1_m, p2_m, &p1, &p2);
+			p2_L.setString("pendulum #2 length: ____");
+			fieldClicked = '2';
+		}
+		else if(isTextFieldClicked(p1_m, currMouseCoords)){
+			resetTextFields(p1_L, p2_L, p1_m, p2_m, &p1, &p2);
+			p1_m.setString("pendulum #1 mass: ____");
+			fieldClicked = '3';
+		}
+		else if(isTextFieldClicked(p2_m, currMouseCoords)){
+			resetTextFields(p1_L, p2_L, p1_m, p2_m, &p1, &p2);
+			p2_m.setString("pendulum #2 mass: ____");
+			fieldClicked = '4';
+		}
+	}
+
 	
 	if(!ispaused){
 	
@@ -94,6 +264,12 @@ int main()
 	}
 	
         window.clear();
+	window.draw(bannerMsg);
+	window.draw(helpText);
+	window.draw(p1_L);
+	window.draw(p2_L);
+	window.draw(p1_m);
+	window.draw(p2_m);
 	window.draw(rod1); 
 	window.draw(rod2); 
         window.draw(bob1);
