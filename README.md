@@ -12,6 +12,7 @@ A simple program written in C++ using SFML libraries for demonstrating a double 
 # Features:
 * Click on the textfields to edit the bob mass and rod lengths of each pendulum
 * click on any other location to move the pendulum to that location
+* Press f to randomize the orientation of the pendulum.
 
 ![Screenshot](data/screenshot.png?raw=true)
 

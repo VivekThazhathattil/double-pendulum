@@ -1,12 +1,11 @@
 #include <SFML/Graphics.hpp>
 #include<iostream>
 #include<cmath>
+#include<time.h>
 
 #define N 100
 
 // TODO: add dotted path (streaklines) for the bobs
-// TODO: ability to drag and drop the bobs
-// TODO: ability to drag the origin of 1st pendulum to desired location on screen
 struct pendulum{
 	float m = 20; //mass
 	float r = 200; //length
@@ -19,6 +18,18 @@ struct pendulum{
 
 bool isTextFieldClicked(sf::Text& textField, sf::Vector2f& coords){
 	return textField.getGlobalBounds().contains(coords);
+}
+
+//keypress 'f' to change the second pendulum's angle
+void changePendulumAngle(pendulum* a, pendulum* b){
+	int den = rand()%10 + 1;
+	a->a = 2*M_PI/den;
+	den = rand()%10 + 1;
+	b->a = 2*M_PI/den;
+	a->a_v = 0;
+	a->a_a = 0;
+	b->a_v = 0;
+	b->a_a = 0;
 }
 
 void resetTextFields(sf::Text& L1, sf::Text& L2, sf::Text& m1, sf::Text& m2, pendulum* a1, pendulum* a2){
@@ -59,6 +70,7 @@ void ang_acc(float& m1, float& m2, float& g, float& a1, float& a2, float& a1_v, 
 
 int main()
 {
+	srand(time(0));
 	int temp_num = 10; // used for temporary int numbers one might need
 	bool isPaused = false;
 	sf::Vector2f currMouseCoords;
@@ -144,8 +156,14 @@ int main()
 		        isPaused = true;
 	    if (event.type == sf::Event::GainedFocus)
 		        isPaused = false;
+	    if (event.type == sf::Event::KeyPressed)
+	    {
+		    if(event.key.code == sf::Keyboard::F){
+			    changePendulumAngle(&p1, &p2);
+		    }
+	    }
 
- 	   	if (event.type == sf::Event::TextEntered)
+ 	    if (event.type == sf::Event::TextEntered)
  	   	{
  	   	    if ((event.text.unicode < 58 && event.text.unicode > 47) || event.text.unicode == 8 || event.text.unicode == 13)
 		    	if (fieldClicked != '0'){
