@@ -1,6 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include<iostream>
 #include<cmath>
+
+#define N 100
+
 // TODO: add dotted path (streaklines) for the bobs
 // TODO: ability to drag and drop the bobs
 // TODO: ability to drag the origin of 1st pendulum to desired location on screen
@@ -57,7 +60,7 @@ void ang_acc(float& m1, float& m2, float& g, float& a1, float& a2, float& a1_v, 
 int main()
 {
 	int temp_num = 10; // used for temporary int numbers one might need
-	bool ispaused = false;
+	bool isPaused = false;
 	sf::Vector2f currMouseCoords;
 
 	std::string ev_num = "";
@@ -138,9 +141,9 @@ int main()
             if (event.type == sf::Event::Closed)
                 window.close();
 	    if (event.type == sf::Event::LostFocus)
-		        ispaused = true;
+		        isPaused = true;
 	    if (event.type == sf::Event::GainedFocus)
-		        ispaused = false;
+		        isPaused = false;
 
  	   	if (event.type == sf::Event::TextEntered)
  	   	{
@@ -206,7 +209,7 @@ int main()
 	{
 		currMouseCoords = sf::Vector2f(sf::Mouse::getPosition(window));
 	//	printf("Mouse coords: (%f, %f) \n", currMouseCoords.x, currMouseCoords.y);
-		
+	//
 		if(isTextFieldClicked(p1_L, currMouseCoords)){
 		//	sf::FloatRect a = p1_L.getLocalBounds();
 		//	printf("left = %d, top = %d, width = %d, height = %d\n", a.left, a.top, a.width, a.height);
@@ -229,10 +232,16 @@ int main()
 			p2_m.setString("pendulum #2 mass: ____");
 			fieldClicked = '4';
 		}
+		else{
+			// clicking elsewhere leads to shifting the origin of the pendulum
+			p1.o[0] = sf::Mouse::getPosition(window).x;
+			p1.o[1] = sf::Mouse::getPosition(window).y;
+		}
 	}
 
+
 	
-	if(!ispaused){
+	if(!isPaused){
 	
 	//	dt = clock.getElapsedTime().asMilliseconds(); // time difference
 		ang_acc(p1.m, p2.m, g, p1.a, p2.a, p1.a_v, p2.a_v, p1.r, p2.r, a_a);

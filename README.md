@@ -1,3 +1,5 @@
+![gif](data/lec.gif)
+
 # Double Pendulum in C++
 A simple program written in C++ using SFML libraries for demonstrating a double pendulum
 
@@ -7,6 +9,9 @@ A simple program written in C++ using SFML libraries for demonstrating a double 
 # Compilation
 * Run `chmod +x driver.sh` and `./driver.sh`
 
+# Features:
+* Click on the textfields to edit the bob mass and rod lengths of each pendulum
+* click on any other location to move the pendulum to that location
+
 ![Screenshot](data/screenshot.png?raw=true)
 
-![gif](data/lec.gif)
