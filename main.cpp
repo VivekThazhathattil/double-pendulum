@@ -4,9 +4,10 @@
 #include<time.h>
 
 #define N 100
-#define STREAKNUM 200
+#define STREAKNUM 400
 
-// TODO: add dotted path (streaklines) for the bobs
+// TODO: optional persistent streak lines
+// TODO: ability to switch between trianglefan and short streak lines
 struct pendulum{
 	float m = 20; //mass
 	float r = 200; //length
@@ -17,18 +18,6 @@ struct pendulum{
 	float w = 2; // rod width
 };
 
-void createLongStreak(){
-}
-
-void createShortStreak(){
-}
-
-void deleteLongStreak(){
-}
-
-void deleteShortStreak(){
-}
-
 bool isTextFieldClicked(sf::Text& textField, sf::Vector2f& coords){
 	return textField.getGlobalBounds().contains(coords);
 }
@@ -36,9 +25,9 @@ bool isTextFieldClicked(sf::Text& textField, sf::Vector2f& coords){
 //keypress 'f' to change the second pendulum's angle
 void changePendulumAngle(pendulum* a, pendulum* b){
 	int den = rand()%10 + 1;
-	a->a = 2*M_PI/den;
+	a->a = M_PI/180*(rand()%360+1);
 	den = rand()%10 + 1;
-	b->a = 2*M_PI/den;
+	b->a = M_PI/180*(rand()%360+1);
 	a->a_v = 0;
 	a->a_a = 0;
 	b->a_v = 0;
@@ -88,9 +77,9 @@ int main()
 	bool isPaused = false;
 
 	char streak = 'n'; // n = no streak, l = long streak, s = short streak
-	sf::VertexArray streakLines(sf::Points, STREAKNUM);
+	sf::VertexArray streakLines(sf::TriangleFan, STREAKNUM);
 	for (int j = 0; j < STREAKNUM; j++)
-		streakLines[j] = sf::Vector2f(0,0);
+		streakLines[j].position = sf::Vector2f(0,0);
 	int streak_count = 0;
 
 	sf::Vector2f currMouseCoords;
@@ -181,48 +170,16 @@ int main()
 		    if(event.key.code == sf::Keyboard::F){
 			    changePendulumAngle(&p1, &p2);
 		    }
-		    else if(event.key.code == sf::Keyboard::L){
-			    if (streak == 'n'){
-				// no streaks currently present.
-				// so create a long streak
-				createLongStreak();
-				streak = 'l';
-
-			    }
-			    else if (streak == 'l'){
-				// streak state = 'l' means long streak already on.
-				// Pressing l again means switch off the streak and delete all of it
-				deleteLongStreak();
-				streak = 'n';
-			    }
-			    else if (streak == 's'){
-				// switch off the long streak
-				// create short streak
-				deleteShortStreak();
-				createLongStreak();
-				streak = 'l';
-			    }
-		    }
-
 		    else if(event.key.code == sf::Keyboard::S){
 			    if (streak == 'n'){
 				// no streaks currently present.
 				// so create a short streak
-				createShortStreak();
 				streak = 's';
 
-			    }
-			    else if (streak == 'l'){
-				// streak state = 'l' means long streak already on.
-				// switch off the long streak and switch on the short streak
-				deleteLongStreak();
-				createShortStreak();
-				streak = 's';
 			    }
 			    else if (streak == 's'){
 				// switch off the short streak
 				// delete all of the short streak
-				deleteShortStreak();
 				streak = 'n';
 
 			    }
@@ -351,7 +308,7 @@ int main()
 		bob2.setPosition(p2.o[0] + p2.r*cos(M_PI/2+p2.a) - p2.m , p2.o[1] + p2.r*sin(M_PI/2+p2.a) - p2.m);
 		if(streak == 's'){
 			
-			streakLines[streak_count%STREAKNUM] = sf::Vector2f(p2.o[0] + p2.r*cos(M_PI/2+p2.a) - p2.m , p2.o[1] + p2.r*sin(M_PI/2+p2.a) - p2.m);
+			streakLines[streak_count%STREAKNUM].position = sf::Vector2f(p2.o[0] + p2.r*cos(M_PI/2+p2.a) - p2.m , p2.o[1] + p2.r*sin(M_PI/2+p2.a) - p2.m);
 			streak_count = streak_count == STREAKNUM*10 - 1 ? 0 : streak_count + 1;
 		}
 	}
@@ -367,9 +324,7 @@ int main()
 	window.draw(rod2); 
         window.draw(bob1);
         window.draw(bob2);
-	if (streak == 'l'){ // add window.draw commands for both the streak cases
-	}
-	else if (streak == 's'){
+	if (streak == 's'){
 		window.draw(streakLines);
 	}
         window.display();
