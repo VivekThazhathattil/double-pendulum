@@ -4,6 +4,7 @@
 #include<time.h>
 
 #define N 100
+#define STREAKNUM 200
 
 // TODO: add dotted path (streaklines) for the bobs
 struct pendulum{
@@ -15,6 +16,18 @@ struct pendulum{
 	float a_a = 0; // angular acceleration (in rad/s2)
 	float w = 2; // rod width
 };
+
+void createLongStreak(){
+}
+
+void createShortStreak(){
+}
+
+void deleteLongStreak(){
+}
+
+void deleteShortStreak(){
+}
 
 bool isTextFieldClicked(sf::Text& textField, sf::Vector2f& coords){
 	return textField.getGlobalBounds().contains(coords);
@@ -73,6 +86,13 @@ int main()
 	srand(time(0));
 	int temp_num = 10; // used for temporary int numbers one might need
 	bool isPaused = false;
+
+	char streak = 'n'; // n = no streak, l = long streak, s = short streak
+	sf::VertexArray streakLines(sf::Points, STREAKNUM);
+	for (int j = 0; j < STREAKNUM; j++)
+		streakLines[j] = sf::Vector2f(0,0);
+	int streak_count = 0;
+
 	sf::Vector2f currMouseCoords;
 
 	std::string ev_num = "";
@@ -160,6 +180,52 @@ int main()
 	    {
 		    if(event.key.code == sf::Keyboard::F){
 			    changePendulumAngle(&p1, &p2);
+		    }
+		    else if(event.key.code == sf::Keyboard::L){
+			    if (streak == 'n'){
+				// no streaks currently present.
+				// so create a long streak
+				createLongStreak();
+				streak = 'l';
+
+			    }
+			    else if (streak == 'l'){
+				// streak state = 'l' means long streak already on.
+				// Pressing l again means switch off the streak and delete all of it
+				deleteLongStreak();
+				streak = 'n';
+			    }
+			    else if (streak == 's'){
+				// switch off the long streak
+				// create short streak
+				deleteShortStreak();
+				createLongStreak();
+				streak = 'l';
+			    }
+		    }
+
+		    else if(event.key.code == sf::Keyboard::S){
+			    if (streak == 'n'){
+				// no streaks currently present.
+				// so create a short streak
+				createShortStreak();
+				streak = 's';
+
+			    }
+			    else if (streak == 'l'){
+				// streak state = 'l' means long streak already on.
+				// switch off the long streak and switch on the short streak
+				deleteLongStreak();
+				createShortStreak();
+				streak = 's';
+			    }
+			    else if (streak == 's'){
+				// switch off the short streak
+				// delete all of the short streak
+				deleteShortStreak();
+				streak = 'n';
+
+			    }
 		    }
 	    }
 
@@ -283,6 +349,11 @@ int main()
 		rod2.setPosition(p2.o[0]-p1.w/2,p2.o[1]-p1.w/2);
 		rod2.setRotation(90+p2.a*180/M_PI);
 		bob2.setPosition(p2.o[0] + p2.r*cos(M_PI/2+p2.a) - p2.m , p2.o[1] + p2.r*sin(M_PI/2+p2.a) - p2.m);
+		if(streak == 's'){
+			
+			streakLines[streak_count%STREAKNUM] = sf::Vector2f(p2.o[0] + p2.r*cos(M_PI/2+p2.a) - p2.m , p2.o[1] + p2.r*sin(M_PI/2+p2.a) - p2.m);
+			streak_count = streak_count == STREAKNUM*10 - 1 ? 0 : streak_count + 1;
+		}
 	}
 	
         window.clear();
@@ -296,6 +367,11 @@ int main()
 	window.draw(rod2); 
         window.draw(bob1);
         window.draw(bob2);
+	if (streak == 'l'){ // add window.draw commands for both the streak cases
+	}
+	else if (streak == 's'){
+		window.draw(streakLines);
+	}
         window.display();
     }
 }
