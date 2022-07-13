@@ -8,7 +8,7 @@ A simple program written in C++ using SFML libraries for demonstrating a double 
 * In order to compile this, you need to have SFML and CMake installed in your system.
 
 # Compilation
-* Run `chmod +x driver.sh` and `./driver.sh`
+* Run: `chmod +x driver.sh` and `./driver.sh`
 
 # Features:
 * Click on the textfields to edit the bob mass and rod lengths of each pendulum

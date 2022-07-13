@@ -129,7 +129,7 @@ int main() {
   sf::Text helpText;
   helpText.setFont(font);
   helpText.setCharacterSize(14); // in pixels, not points!
-  helpText.setString("(click on the textfields to tweak the pendulum)");
+  helpText.setString("(click on the textfields to tweak the pendulum | f: restart | s: toggle trail)");
   helpText.setPosition(text_xoffset, 0);
 
   // p1_L, p2_L, p1_m, and p2_m are textfields for the respective values
